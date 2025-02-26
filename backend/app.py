@@ -163,8 +163,8 @@ def train():
         return jsonify({"message": "Model trained successfully", "accuracy": accuracy})
 
     except Exception as e:
-    logging.error(f"Error in /train: {str(e)}")
-    return jsonify({"error": str(e)}), 500
+        logging.error(f"Error in /train: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 
 
