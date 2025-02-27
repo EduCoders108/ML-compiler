@@ -4,3 +4,26 @@
 2025-02-27 00:02:23,006 - INFO -  * Restarting with stat
 2025-02-27 00:02:26,320 - WARNING -  * Debugger is active!
 2025-02-27 00:02:26,337 - INFO -  * Debugger PIN: 105-867-805
+2025-02-27 00:06:15,898 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-27 00:06:15,898 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-27 00:06:15,902 - INFO -  * Restarting with stat
+2025-02-27 00:06:19,286 - WARNING -  * Debugger is active!
+2025-02-27 00:06:19,291 - INFO -  * Debugger PIN: 105-867-805
+2025-02-27 00:07:24,679 - INFO - 127.0.0.1 - - [27/Feb/2025 00:07:24] "GET / HTTP/1.1" 200 -
+2025-02-27 00:07:24,983 - INFO - 127.0.0.1 - - [27/Feb/2025 00:07:24] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-02-27 00:08:39,200 - INFO - 127.0.0.1 - - [27/Feb/2025 00:08:39] "POST /train HTTP/1.1" 200 -
+2025-02-27 00:10:11,147 - INFO - 127.0.0.1 - - [27/Feb/2025 00:10:11] "[31m[1mPOST /train HTTP/1.1[0m" 400 -
+2025-02-27 00:12:20,954 - INFO - 127.0.0.1 - - [27/Feb/2025 00:12:20] "POST /train HTTP/1.1" 200 -
+2025-02-27 00:13:17,094 - INFO - 127.0.0.1 - - [27/Feb/2025 00:13:17] "POST /predict HTTP/1.1" 200 -
+2025-02-27 12:51:59,581 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-27 12:51:59,582 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-27 12:51:59,583 - INFO -  * Restarting with stat
+2025-02-27 12:52:00,942 - WARNING -  * Debugger is active!
+2025-02-27 12:52:00,952 - INFO -  * Debugger PIN: 105-867-805
+2025-02-27 12:52:29,111 - INFO - 127.0.0.1 - - [27/Feb/2025 12:52:29] "GET / HTTP/1.1" 200 -
+2025-02-27 12:52:29,205 - INFO - 127.0.0.1 - - [27/Feb/2025 12:52:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-02-27 12:53:53,202 - INFO - 127.0.0.1 - - [27/Feb/2025 12:53:53] "GET /datasets HTTP/1.1" 200 -
+2025-02-27 12:55:07,523 - INFO - 127.0.0.1 - - [27/Feb/2025 12:55:07] "[31m[1mPOST /predict HTTP/1.1[0m" 400 -
+2025-02-27 12:55:15,702 - INFO - 127.0.0.1 - - [27/Feb/2025 12:55:15] "POST /predict HTTP/1.1" 200 -
