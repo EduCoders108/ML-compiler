@@ -12,13 +12,12 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
+import logging
 
 app = Flask(__name__)
 
-import logging
-
-logging.basicConfig(filename="app.log", level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s")
-
+# Configure logging
+logging.basicConfig(filename="app.log", level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Base directory for datasets
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -30,8 +29,8 @@ datasets = {
     "iris": load_iris(as_frame=True).frame,
     "wine": load_wine(as_frame=True).frame,
     "digits": load_digits(as_frame=True).frame,
-    "titanic": pd.read_csv(os.path.join(DATASET_DIR, "titanic.csv")),
-    "boston": pd.read_csv(os.path.join(DATASET_DIR, "boston.csv"))
+    "titanic": pd.read_csv(os.path.join(DATASET_DIR, "titanic.csv")) if os.path.exists(os.path.join(DATASET_DIR, "titanic.csv")) else None,
+    "boston": pd.read_csv(os.path.join(DATASET_DIR, "boston.csv")) if os.path.exists(os.path.join(DATASET_DIR, "boston.csv")) else None
 }
 
 # Directory to store trained models
@@ -40,20 +39,19 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 
 def load_dataset(dataset_name):
     """Loads a dataset from predefined ones or uploaded CSV files."""
-    if dataset_name in datasets:
+    if dataset_name in datasets and datasets[dataset_name] is not None:
         return datasets[dataset_name]
     
     dataset_path = os.path.join(DATASET_DIR, f"{dataset_name}.csv")
     if os.path.exists(dataset_path):
-        return pd.read_csv(dataset_path)  # Load CSV dataset
-
-    return None  # If dataset not found
+        return pd.read_csv(dataset_path)
+    
+    return None
 
 @app.route('/')
 def home():
     return jsonify({"message": "Flask API is Running!"})
 
-# Upload Dataset
 @app.route('/upload', methods=['POST'])
 def upload_dataset():
     if 'file' not in request.files:
@@ -70,21 +68,20 @@ def upload_dataset():
     
     return jsonify({"message": f"Dataset {filename} uploaded successfully", "file_path": file_path})
 
-# List Available Datasets
 @app.route("/datasets", methods=["GET"])
 def list_datasets():
-    return jsonify({"datasets": list(datasets.keys()) + [f[:-4] for f in os.listdir(DATASET_DIR) if f.endswith('.csv')]})
+    available_datasets = list(datasets.keys()) + [f[:-4] for f in os.listdir(DATASET_DIR) if f.endswith('.csv')]
+    return jsonify({"datasets": available_datasets})
 
-# Dataset Info
 @app.route("/dataset-info", methods=["POST"])
 def dataset_info():
     data = request.get_json()
     dataset_name = data.get("dataset")
-
+    
     df = load_dataset(dataset_name)
     if df is None:
         return jsonify({"error": "Dataset not found"}), 400
-
+    
     info = {
         "columns": list(df.columns),
         "data_types": df.dtypes.apply(str).to_dict(),
@@ -93,7 +90,6 @@ def dataset_info():
     }
     return jsonify(info)
 
-# Dataset Preview
 @app.route("/dataset-preview", methods=["POST"])
 def dataset_preview():
     data = request.get_json()
@@ -105,8 +101,6 @@ def dataset_preview():
 
     return jsonify(df.head().to_dict(orient="records"))
 
-# Train Model
-# Train Model
 @app.route('/train', methods=['POST'])
 def train():
     try:
@@ -133,7 +127,6 @@ def train():
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
 
-        # Dictionary of available models
         model_dict = {
             "logistic_regression": LogisticRegression(),
             "decision_tree": DecisionTreeClassifier(),
@@ -148,25 +141,20 @@ def train():
         model = model_dict[model_name]
         model.fit(X_train, y_train)
 
-        # Ensure models directory exists
-        os.makedirs(MODEL_DIR, exist_ok=True)
-
-        # Save the trained model & scaler
         model_path = os.path.join(MODEL_DIR, f"{model_name}_{dataset_name}.pkl")
         scaler_path = os.path.join(MODEL_DIR, f"{dataset_name}_scaler.pkl")
 
-        joblib.dump(model, model_path)   # Save model
-        joblib.dump(scaler, scaler_path) # Save scaler
+        joblib.dump(model, model_path)
+        joblib.dump(scaler, scaler_path)
 
         accuracy = accuracy_score(y_test, model.predict(X_test))
 
+        logging.info(f"Model {model_name} trained on {dataset_name} with accuracy {accuracy:.4f}")
         return jsonify({"message": "Model trained successfully", "accuracy": accuracy})
-
+    
     except Exception as e:
         logging.error(f"Error in /train: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
-
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -175,11 +163,10 @@ def predict():
         dataset_name = data.get("dataset")
         model_name = data.get("model")
         input_features = data.get("features")
-
-        if dataset_name not in datasets:
+        
+        df = load_dataset(dataset_name)
+        if df is None:
             return jsonify({"error": "Dataset not found"}), 400
-        if model_name not in ["logistic_regression", "decision_tree", "random_forest", "svm", "knn"]:
-            return jsonify({"error": "Model not found"}), 400
 
         model_path = os.path.join(MODEL_DIR, f"{model_name}_{dataset_name}.pkl")
         scaler_path = os.path.join(MODEL_DIR, f"{dataset_name}_scaler.pkl")
@@ -187,22 +174,18 @@ def predict():
         if not os.path.exists(model_path) or not os.path.exists(scaler_path):
             return jsonify({"error": "Model not trained. Train the model first using /train"}), 400
 
-        # Load the trained model & scaler
         model = joblib.load(model_path)
         scaler = joblib.load(scaler_path)
 
-        # Convert input features to NumPy array & apply scaling
         input_array = np.array(input_features).reshape(1, -1)
         input_scaled = scaler.transform(input_array)
 
-        # Make prediction
         prediction = model.predict(input_scaled).tolist()
-
         return jsonify({"prediction": prediction})
-
+    
     except Exception as e:
+        logging.error(f"Error in /predict: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)

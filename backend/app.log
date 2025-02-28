@@ -36,3 +36,110 @@
 2025-02-27 15:54:36,361 - INFO - 127.0.0.1 - - [27/Feb/2025 15:54:36] "GET / HTTP/1.1" 200 -
 2025-02-27 15:54:36,700 - INFO - 127.0.0.1 - - [27/Feb/2025 15:54:36] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
 2025-02-27 15:56:07,633 - INFO - 127.0.0.1 - - [27/Feb/2025 15:56:07] "GET / HTTP/1.1" 200 -
+2025-02-27 17:57:16,529 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-27 17:57:16,530 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-27 17:57:16,533 - INFO -  * Restarting with stat
+2025-02-27 17:57:20,263 - WARNING -  * Debugger is active!
+2025-02-27 17:57:20,280 - INFO -  * Debugger PIN: 105-867-805
+2025-02-27 17:58:05,027 - INFO - 127.0.0.1 - - [27/Feb/2025 17:58:05] "[31m[1mPOST /train HTTP/1.1[0m" 400 -
+2025-02-27 18:01:07,999 - INFO - 127.0.0.1 - - [27/Feb/2025 18:01:07] "POST /train HTTP/1.1" 200 -
+2025-02-27 22:19:25,266 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-27 22:19:25,267 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-27 22:19:25,270 - INFO -  * Restarting with stat
+2025-02-27 22:19:28,635 - WARNING -  * Debugger is active!
+2025-02-27 22:19:28,652 - INFO -  * Debugger PIN: 105-867-805
+2025-02-27 22:41:51,084 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-27 22:41:51,085 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-27 22:41:51,088 - INFO -  * Restarting with stat
+2025-02-27 22:41:54,703 - WARNING -  * Debugger is active!
+2025-02-27 22:41:54,719 - INFO -  * Debugger PIN: 105-867-805
+2025-02-27 22:43:40,064 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-27 22:43:40,064 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-27 22:43:40,067 - INFO -  * Restarting with stat
+2025-02-27 22:43:43,494 - WARNING -  * Debugger is active!
+2025-02-27 22:43:43,500 - INFO -  * Debugger PIN: 105-867-805
+2025-02-27 22:54:59,078 - WARNING -  * Debugger is active!
+2025-02-27 22:54:59,078 - INFO -  * Debugger PIN: 105-867-805
+2025-02-27 22:54:59,842 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-27 22:54:59,849 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-27 22:54:59,857 - INFO -  * Restarting with stat
+2025-02-27 23:50:13,831 - WARNING -  * Debugger is active!
+2025-02-27 23:50:13,839 - INFO -  * Debugger PIN: 105-867-805
+2025-02-28 01:27:44,471 - INFO -  * Detected change in 'C:\\Users\\HP\\ML-compiler\\backend\\app.py', reloading
+2025-02-28 01:27:53,449 - WARNING -  * Debugger is active!
+2025-02-28 01:27:53,459 - INFO -  * Debugger PIN: 105-867-805
+2025-02-28 16:54:44,391 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-28 16:54:44,391 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-28 16:54:44,394 - INFO -  * Restarting with stat
+2025-02-28 16:54:47,846 - WARNING -  * Debugger is active!
+2025-02-28 16:54:47,861 - INFO -  * Debugger PIN: 105-867-805
+2025-02-28 16:55:13,374 - INFO - 127.0.0.1 - - [28/Feb/2025 16:55:13] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 16:55:13,418 - INFO - 127.0.0.1 - - [28/Feb/2025 16:55:13] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-02-28 16:55:54,486 - INFO - 127.0.0.1 - - [28/Feb/2025 16:55:54] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 16:56:04,695 - INFO - 127.0.0.1 - - [28/Feb/2025 16:56:04] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 16:58:11,328 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-28 16:58:11,329 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-28 16:58:11,331 - INFO -  * Restarting with stat
+2025-02-28 16:58:14,994 - WARNING -  * Debugger is active!
+2025-02-28 16:58:15,001 - INFO -  * Debugger PIN: 105-867-805
+2025-02-28 17:02:50,720 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-28 17:02:50,720 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-28 17:02:50,723 - INFO -  * Restarting with stat
+2025-02-28 17:02:54,132 - WARNING -  * Debugger is active!
+2025-02-28 17:02:54,138 - INFO -  * Debugger PIN: 105-867-805
+2025-02-28 17:04:46,937 - INFO - 127.0.0.1 - - [28/Feb/2025 17:04:46] "GET /datasets HTTP/1.1" 200 -
+2025-02-28 17:04:49,089 - INFO - 127.0.0.1 - - [28/Feb/2025 17:04:49] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:04:58,955 - INFO - 127.0.0.1 - - [28/Feb/2025 17:04:58] "GET /datasets HTTP/1.1" 200 -
+2025-02-28 17:04:59,343 - INFO - 127.0.0.1 - - [28/Feb/2025 17:04:59] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:06:12,373 - INFO - 127.0.0.1 - - [28/Feb/2025 17:06:12] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:06:14,177 - INFO - 127.0.0.1 - - [28/Feb/2025 17:06:14] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:06:17,129 - INFO - 127.0.0.1 - - [28/Feb/2025 17:06:17] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:06:27,639 - INFO - 127.0.0.1 - - [28/Feb/2025 17:06:27] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:10:06,527 - INFO - 127.0.0.1 - - [28/Feb/2025 17:10:06] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:12:34,172 - INFO - 127.0.0.1 - - [28/Feb/2025 17:12:34] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:12:42,786 - INFO - 127.0.0.1 - - [28/Feb/2025 17:12:42] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:12:44,649 - INFO - 127.0.0.1 - - [28/Feb/2025 17:12:44] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:12:53,340 - INFO - 127.0.0.1 - - [28/Feb/2025 17:12:53] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:20:11,567 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-28 17:20:11,569 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-28 17:20:11,572 - INFO -  * Restarting with stat
+2025-02-28 17:20:15,253 - WARNING -  * Debugger is active!
+2025-02-28 17:20:15,261 - INFO -  * Debugger PIN: 105-867-805
+2025-02-28 17:24:05,447 - INFO - 127.0.0.1 - - [28/Feb/2025 17:24:05] "GET /datasets HTTP/1.1" 200 -
+2025-02-28 17:24:08,514 - INFO - 127.0.0.1 - - [28/Feb/2025 17:24:08] "GET /datasets HTTP/1.1" 200 -
+2025-02-28 17:24:28,373 - INFO - 127.0.0.1 - - [28/Feb/2025 17:24:28] "GET /datasets HTTP/1.1" 200 -
+2025-02-28 17:25:22,886 - INFO - 127.0.0.1 - - [28/Feb/2025 17:25:22] "[31m[1mPOST /train HTTP/1.1[0m" 400 -
+2025-02-28 17:27:27,357 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-28 17:27:27,357 - INFO - [33mPress CTRL+C to quit[0m
+2025-02-28 17:27:27,360 - INFO -  * Restarting with stat
+2025-02-28 17:27:30,862 - WARNING -  * Debugger is active!
+2025-02-28 17:27:30,872 - INFO -  * Debugger PIN: 105-867-805
+2025-02-28 17:27:52,940 - INFO - 127.0.0.1 - - [28/Feb/2025 17:27:52] "GET /datasets HTTP/1.1" 200 -
+2025-02-28 17:27:54,977 - INFO - 127.0.0.1 - - [28/Feb/2025 17:27:54] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:27:58,103 - INFO - 127.0.0.1 - - [28/Feb/2025 17:27:58] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:28:03,637 - INFO - 127.0.0.1 - - [28/Feb/2025 17:28:03] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:28:06,274 - INFO - 127.0.0.1 - - [28/Feb/2025 17:28:06] "GET /datasets HTTP/1.1" 200 -
+2025-02-28 17:28:08,954 - INFO - 127.0.0.1 - - [28/Feb/2025 17:28:08] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:28:10,262 - INFO - 127.0.0.1 - - [28/Feb/2025 17:28:10] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:28:12,828 - INFO - 127.0.0.1 - - [28/Feb/2025 17:28:12] "[33mGET /api/datasets HTTP/1.1[0m" 404 -
+2025-02-28 17:28:30,060 - INFO - 127.0.0.1 - - [28/Feb/2025 17:28:30] "[31m[1mPOST /train HTTP/1.1[0m" 400 -
+2025-02-28 17:28:49,969 - INFO - 127.0.0.1 - - [28/Feb/2025 17:28:49] "POST /train HTTP/1.1" 200 -
+2025-02-28 17:33:42,979 - INFO -  * Detected change in 'C:\\Users\\HP\\ML-compiler\\backend\\app.py', reloading
+2025-02-28 17:33:43,300 - INFO -  * Restarting with stat
+2025-02-28 17:33:46,940 - WARNING -  * Debugger is active!
+2025-02-28 17:33:46,947 - INFO -  * Debugger PIN: 105-867-805
+2025-02-28 17:35:36,988 - INFO -  * Detected change in 'C:\\Users\\HP\\ML-compiler\\backend\\app.py', reloading
+2025-02-28 17:35:37,380 - INFO -  * Restarting with stat
+2025-02-28 17:35:41,526 - WARNING -  * Debugger is active!
+2025-02-28 17:35:41,532 - INFO -  * Debugger PIN: 105-867-805
+2025-02-28 17:37:52,373 - INFO -  * Detected change in 'C:\\Users\\HP\\ML-compiler\\backend\\app.py', reloading
