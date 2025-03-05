@@ -60,7 +60,7 @@ export default function LeftSidebar() {
           className="flex items-center gap-3 rounded-md p-2 hover:bg-gray-700"
         >
           <Code className="size-5" />
-          <span>Dataset</span>
+          <span>Dataset Management</span>
         </Link>
 
         <Link

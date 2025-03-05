@@ -1,61 +1,61 @@
-"use client"; // Required for interactivity in Next.js App Router
+"use client";
 
-import { useState, useEffect } from "react";
+import DatasetList from "@/components/datasetmanagment/Availabledataset";
+import DatasetInfo from "@/components/datasetmanagment/Datasetinfo";
+import DatasetPreview from "@/components/datasetmanagment/Datasetpreview";
+import Predict from "@/components/datasetmanagment/Makeprediction";
+import TrainModel from "@/components/datasetmanagment/Trainmodel";
+import UploadDataset from "@/components/datasetmanagment/Uploaddataset";
+import { useState } from "react";
 
-const DatasetSelection = () => {
-  const [datasets, setDatasets] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchDatasets = async () => {
-      try {
-        // ✅ Fetch datasets from Node.js backend
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_NODE_API_URL}/datasets`
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log("Fetched Datasets:", data.datasets); // Debugging log
-        setDatasets([...new Set(data.datasets)]); // Remove duplicates
-      } catch (err) {
-        setError("Error fetching datasets");
-        console.error("Error fetching datasets:", err);
-      }
-    };
-
-    fetchDatasets();
-  }, []);
+const DatasetsPage = () => {
+  const [activeTab, setActiveTab] = useState("list");
+  const [selectedDataset, setSelectedDataset] = useState<string | null>(null);
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold">Select a Dataset</h1>
+      <h1 className="mb-4 text-2xl font-bold">Dataset Management</h1>
 
-      {error && <p className="text-red-500">{error}</p>}
-
-      <ul className="mt-4 space-y-2">
-        {datasets.map((dataset, index) => (
-          <li
-            key={index}
-            className="flex items-center justify-between rounded border p-4"
-          >
-            <span className="text-lg font-semibold">{dataset}</span>
-            {/* ✅ Fixed Download Link */}
-            <a
-              href={`${process.env.NEXT_PUBLIC_NODE_API_URL}/datasets/${dataset}`}
-              download
-              className="text-blue-500 underline"
+      {/* Navigation Tabs */}
+      <div className="flex space-x-4 border-b pb-2">
+        {["list", "upload", "info", "preview", "train", "predict"].map(
+          (tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`rounded-t px-4 py-2 ${
+                activeTab === tab ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
             >
-              Download
-            </a>
-          </li>
-        ))}
-      </ul>
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          )
+        )}
+      </div>
+
+      {/* Content Section */}
+      <div className="mt-4">
+        {activeTab === "list" && (
+          <DatasetList
+            onSelect={(dataset) => {
+              setSelectedDataset(dataset);
+              setActiveTab("info");
+            }}
+          />
+        )}
+        {activeTab === "upload" && <UploadDataset />}
+        {activeTab === "info" && selectedDataset && (
+          <DatasetInfo
+            dataset={selectedDataset}
+            onBack={() => setActiveTab("list")}
+          />
+        )}
+        {activeTab === "preview" && <DatasetPreview />}
+        {activeTab === "train" && <TrainModel />}
+        {activeTab === "predict" && <Predict />}
+      </div>
     </div>
   );
 };
 
-export default DatasetSelection;
+export default DatasetsPage;
