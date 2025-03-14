@@ -9,7 +9,7 @@ import {
   FiServer,
   FiGlobe,
 } from "react-icons/fi";
-import { useTheme } from "next-themes";
+// import { useTheme } from "next-themes";
 
 // Feature card component
 interface FeatureCardProps {

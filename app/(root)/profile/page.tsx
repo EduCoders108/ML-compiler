@@ -23,11 +23,11 @@ export default function ProfilePage() {
 
   // Mock user data - would come from your backend in a real app
   const userData = {
-    name: "Alex Johnson",
-    username: "alexj_ml",
+    name: "Rit Narayan Mallick",
+    username: "alpha82",
     role: "ML Engineer",
-    location: "San Francisco, CA",
-    email: "alex.johnson@example.com",
+    location: "Jabalpur",
+    email: "123@example.com",
     joinDate: "January 2023",
     bio: "Machine learning engineer specializing in NLP and computer vision. 5+ years experience building and deploying ML models at scale.",
     skills: [

@@ -9,21 +9,21 @@ const UploadDataset = () => {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("dataset", file);
+    formData.append("file", file);
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_NODE_API_URL}/upload`,
+        `${process.env.NEXT_PUBLIC_FLASK_API_URL}upload`,
         {
           method: "POST",
           body: formData,
         }
       );
-
+      const result = await response.json();
       if (!response.ok) throw new Error("Upload failed");
-      setMessage("Upload successful!");
-    } catch (err) {
-      setMessage("Error uploading file.");
+      setMessage(`✅ Upload successful: ${result.message}`);
+    } catch (err: any) {
+      setMessage(`❌ ${err.message}`);
     }
   };
 
