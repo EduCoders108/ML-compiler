@@ -1,31 +1,40 @@
 from flask import Flask, request, jsonify
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.datasets import load_iris, load_wine, load_digits
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import joblib
 import os
+import json
+import uuid
+import io
 import logging
+import subprocess
+import sys
+import traceback
+import base64
+
+
+import shlex
+import signal
+
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)
 
 # Configure logging
 logging.basicConfig(filename="app.log", level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Base directory for datasets
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# Base directory for datasets (inside backend folder)
+BASE_DIR = os.path.dirname(__file__)
 DATASET_DIR = os.path.join(BASE_DIR, "datasets")
 os.makedirs(DATASET_DIR, exist_ok=True)
 
 # Directory to store trained models
-MODEL_DIR = "models"
+MODEL_DIR = os.path.join(BASE_DIR, "models")
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 def load_dataset(dataset_name):
@@ -74,14 +83,16 @@ def list_datasets():
     available_datasets = ["iris", "wine", "digits"] + [f[:-4] for f in os.listdir(DATASET_DIR) if f.endswith('.csv')]
     return jsonify({"datasets": available_datasets})
 
-@app.route("/dataset-info", methods=["POST"])
+@app.route("/dataset-info", methods=["GET"])
 def dataset_info():
-    data = request.get_json()
-    dataset_name = data.get("dataset")
+    dataset_name = request.args.get("name")  # Get dataset from query params
+    
+    if not dataset_name:
+        return jsonify({"error": "Dataset name is required"}), 400  # Handle missing dataset
     
     df = load_dataset(dataset_name)
     if df is None:
-        return jsonify({"error": "Dataset not found"}), 400
+        return jsonify({"error": "Dataset not found"}), 404  # Handle dataset not found
     
     info = {
         "columns": list(df.columns),
@@ -89,104 +100,133 @@ def dataset_info():
         "missing_values": df.isnull().sum().to_dict(),
         "shape": df.shape
     }
+    
     return jsonify(info)
-
-@app.route("/dataset-preview", methods=["POST"])
+    
+@app.route('/dataset-preview', methods=['GET'])
 def dataset_preview():
-    data = request.get_json()
-    dataset_name = data.get("dataset")
-
-    df = load_dataset(dataset_name)
-    if df is None:
-        return jsonify({"error": "Dataset not found"}), 400
-
-    return jsonify(df.head().to_dict(orient="records"))
-
-@app.route('/train', methods=['POST'])
-def train():
     try:
-        data = request.get_json()
-        dataset_name = data.get("dataset")
-        model_name = data.get("model")
-        selected_features = data.get("features")
-        target_column = data.get("target")
-
-        df = load_dataset(dataset_name)
-        if df is None:
-            return jsonify({"error": "Dataset not found"}), 400
-
-        if not selected_features or target_column not in df.columns:
-            return jsonify({"error": "Invalid feature selection"}), 400
-        if target_column in selected_features:
-            return jsonify({"error": "Target column should not be in feature list"}), 400
-
-        X = df[selected_features]
-        y = df[target_column]
-
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
-
-        model_dict = {
-            "logistic_regression": LogisticRegression(),
-            "decision_tree": DecisionTreeClassifier(),
-            "random_forest": RandomForestClassifier(),
-            "svm": SVC(),
-            "knn": KNeighborsClassifier()
-        }
-
-        if model_name not in model_dict:
-            return jsonify({"error": "Invalid model name"}), 400
-
-        model = model_dict[model_name]
-        model.fit(X_train, y_train)
-
-        model_path = os.path.join(MODEL_DIR, f"{model_name}_{dataset_name}.pkl")
-        scaler_path = os.path.join(MODEL_DIR, f"{dataset_name}_scaler.pkl")
-
-        joblib.dump(model, model_path)
-        joblib.dump(scaler, scaler_path)
-
-        accuracy = accuracy_score(y_test, model.predict(X_test))
-
-        logging.info(f"Model {model_name} trained on {dataset_name} with accuracy {accuracy:.4f}")
-        return jsonify({"message": "Model trained successfully", "accuracy": accuracy})
-    
-    except Exception as e:
-        logging.error(f"Error in /train: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
-        data = request.get_json()
-        dataset_name = data.get("dataset")
-        model_name = data.get("model")
-        input_features = data.get("features")
+        dataset_name = request.args.get("name")  # Get dataset name from query parameters
+        if not dataset_name:
+            return jsonify({"error": "Dataset name is required"}), 400
         
-        df = load_dataset(dataset_name)
-        if df is None:
-            return jsonify({"error": "Dataset not found"}), 400
-
-        model_path = os.path.join(MODEL_DIR, f"{model_name}_{dataset_name}.pkl")
-        scaler_path = os.path.join(MODEL_DIR, f"{dataset_name}_scaler.pkl")
-
-        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-            return jsonify({"error": "Model not trained. Train the model first using /train"}), 400
-
-        model = joblib.load(model_path)
-        scaler = joblib.load(scaler_path)
-
-        input_array = np.array(input_features).reshape(1, -1)
-        input_scaled = scaler.transform(input_array)
-
-        prediction = model.predict(input_scaled).tolist()
-        return jsonify({"prediction": prediction})
+        dataset = load_dataset(dataset_name)  # Load dataset using your function
+        
+        if dataset is None:
+            return jsonify({"error": "Dataset not found"}), 404
+        
+        return jsonify({"dataset": dataset.to_dict(orient="records")})  # Convert DataFrame to JSON
     
     except Exception as e:
-        logging.error(f"Error in /predict: {str(e)}")
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/execute', methods=['POST'])
+def execute_code():
+    data = request.json
+    code = data.get("code", "")
+    if not code:
+        return jsonify({"error": "No code provided"}), 400
+    
+
+
+    
+    predefined_datasets = {
+        "iris": load_iris(as_frame=True).frame,
+        "wine": load_wine(as_frame=True).frame,
+        "digits": load_digits(as_frame=True).frame
+    }
+    
+    uploaded_datasets = {}
+    for filename in os.listdir(DATASET_DIR):
+        if filename.endswith(".csv"):
+            dataset_name = filename[:-4]
+            uploaded_datasets[dataset_name] = pd.read_csv(os.path.join(DATASET_DIR, filename))
+    
+    available_datasets = {**predefined_datasets, **uploaded_datasets}
+    
+    safe_globals = {
+        "__builtins__": { 
+            "len": len, "range": range,
+            "sum": sum, "min": min, "max": max, "sorted": sorted,
+            "abs": abs, "round": round, "divmod": divmod,
+            "enumerate": enumerate, "map": map, "filter": filter, "zip": zip,
+            "__import__": __import__ 
+        },
+        "pd": pd,
+        "np": np,
+        "plt": plt,
+        "datasets": available_datasets
+    }
+    safe_locals = {}
+    
+    output_buffer = io.StringIO()
+    error_buffer = io.StringIO()
+    
+    def custom_print(*args):
+        """Custom print function to capture output without brackets."""
+        formatted_output = ""
+        for arg in args:
+            if isinstance(arg, pd.DataFrame):
+                formatted_output += json.dumps(arg.to_dict(orient="records"), indent=4) + "\n"
+            elif isinstance(arg, pd.Series):
+                formatted_output += json.dumps(arg.to_dict(), indent=4) + "\n"
+            else:
+                formatted_output += str(arg) + "\n"
+        
+        output_buffer.write(formatted_output.strip() + "\n")
+
+     
+    # Store the original plt.show function
+    original_plt_show = plt.show
+    
+    # Initialize plot_data as None
+    plot_data = None
+
+     # Define a function to capture plot
+    def capture_plot():
+        nonlocal plot_data
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight')
+        buf.seek(0)
+        plot_data = base64.b64encode(buf.read()).decode('utf-8')
+        plt.close()
+    
+    def custom_plt_show(*args, **kwargs):
+        capture_plot()
+    # ✅ Override plt.show() to save plot instead
+    
+    safe_globals["plt"].show = custom_plt_show
+
+    safe_globals["print"] = custom_print
+    
+    try:
+        sys.stdout = output_buffer
+        sys.stderr = error_buffer
+        exec(code, safe_globals, safe_locals)
+
+        if plt.get_fignums() and plot_data is None:
+            capture_plot()
+        # ✅ Capture the plot (if generated)
+
+    except Exception as e:
+        error_message = traceback.format_exc()
+        return jsonify({"error": error_message.strip()}), 400
+    finally:
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+        plt.close('all')
+        
+    output = output_buffer.getvalue().strip()
+    errors = error_buffer.getvalue().strip()
+    
+    # ✅ Corrected INresponse construction
+    response = {"output": output, "errors": errors}
+    
+    if plot_data:
+        response["plot"] = plot_data  # Add the base64-encoded plot to the response
+    
+    return jsonify(response)  # ✅ Move `return` to the correct place
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
