@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Cache-Control": "no-store",
       },
       body: JSON.stringify({ code }),
     });

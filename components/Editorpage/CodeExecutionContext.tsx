@@ -1,9 +1,9 @@
 "use client";
-
 import { createContext, useContext, useState, ReactNode } from "react";
 
 interface CodeExecutionContextType {
   output: string;
+  plot: string;
   isLoading: boolean;
   executeCode: (code: string) => Promise<void>;
 }
@@ -20,11 +20,13 @@ export function CodeExecutionProvider({
   children,
 }: CodeExecutionProviderProps) {
   const [output, setOutput] = useState<string>("");
+  const [plot, setPlot] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const executeCode = async (code: string): Promise<void> => {
     setIsLoading(true);
     setOutput("⏳ Running code...");
+    setPlot(""); // Clear previous plot
 
     try {
       const portForwardedUrl = process.env.NEXT_PUBLIC_FLASK_API_URL;
@@ -32,6 +34,7 @@ export function CodeExecutionProvider({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Cache-Control": "no-store",
         },
         body: JSON.stringify({ code }),
       });
@@ -44,6 +47,9 @@ export function CodeExecutionProvider({
         setOutput(
           result.output || "✅ Code executed successfully with no output"
         );
+        if (result.plot) {
+          setPlot(result.plot);
+        }
       }
     } catch (error: any) {
       setOutput(`❌ Server error: ${error.message}`);
@@ -53,7 +59,9 @@ export function CodeExecutionProvider({
   };
 
   return (
-    <CodeExecutionContext.Provider value={{ output, isLoading, executeCode }}>
+    <CodeExecutionContext.Provider
+      value={{ output, plot, isLoading, executeCode }}
+    >
       {children}
     </CodeExecutionContext.Provider>
   );
@@ -61,7 +69,7 @@ export function CodeExecutionProvider({
 
 export const useCodeExecution = (): CodeExecutionContextType => {
   const context = useContext(CodeExecutionContext);
-  if (context === null) {
+  if (!context) {
     throw new Error(
       "useCodeExecution must be used within a CodeExecutionProvider"
     );
