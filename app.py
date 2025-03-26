@@ -14,6 +14,7 @@ import subprocess
 import sys
 import traceback
 import base64
+import gc  # Add garbage collection
 
 
 import shlex
@@ -120,15 +121,13 @@ def dataset_preview():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+    
 @app.route('/execute', methods=['POST'])
 def execute_code():
     data = request.json
     code = data.get("code", "")
     if not code:
         return jsonify({"error": "No code provided"}), 400
-    
-
-
     
     predefined_datasets = {
         "iris": load_iris(as_frame=True).frame,
@@ -175,58 +174,79 @@ def execute_code():
         
         output_buffer.write(formatted_output.strip() + "\n")
 
-     
     # Store the original plt.show function
     original_plt_show = plt.show
     
-    # Initialize plot_data as None
+    # Initialize plot data in function scope
     plot_data = None
 
-     # Define a function to capture plot
+    # Define a function to capture plot
     def capture_plot():
-        nonlocal plot_data
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight')
-        buf.seek(0)
-        plot_data = base64.b64encode(buf.read()).decode('utf-8')
-        plt.close()
+        try:
+            plt.savefig(buf, format='png', bbox_inches='tight')
+            buf.seek(0)
+            encoded_plot = base64.b64encode(buf.read()).decode('utf-8')
+            return encoded_plot
+        except Exception as e:
+            logging.error(f"Error capturing plot: {str(e)}")
+            return None
+        finally:
+            buf.close()
     
+    # Override plt.show to capture plot
     def custom_plt_show(*args, **kwargs):
-        capture_plot()
-    # ✅ Override plt.show() to save plot instead
-    
+        nonlocal plot_data
+        plot_data = capture_plot()
+        plt.close('all')  # Properly close all figures
+        
     safe_globals["plt"].show = custom_plt_show
-
     safe_globals["print"] = custom_print
     
     try:
+        # Save original stdout/stderr
+        original_stdout = sys.stdout
+        original_stderr = sys.stderr
+        
+        # Redirect output
         sys.stdout = output_buffer
         sys.stderr = error_buffer
+        
+        # Execute the code
         exec(code, safe_globals, safe_locals)
-
+        
+        # Check if there are figures but plot_data wasn't set (user didn't call plt.show)
         if plt.get_fignums() and plot_data is None:
-            capture_plot()
-        # ✅ Capture the plot (if generated)
-
+            plot_data = capture_plot()
+            
     except Exception as e:
         error_message = traceback.format_exc()
         return jsonify({"error": error_message.strip()}), 400
     finally:
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
+        # Restore original stdout/stderr
+        sys.stdout = original_stdout
+        sys.stderr = original_stderr
+        
+        # Ensure all plots are closed to prevent memory leaks
         plt.close('all')
+        
+        # Force garbage collection to clean up memory
+        gc.collect()
         
     output = output_buffer.getvalue().strip()
     errors = error_buffer.getvalue().strip()
     
-    # ✅ Corrected INresponse construction
+    # Clean up buffers
+    output_buffer.close()
+    error_buffer.close()
+    
+    # Construct response
     response = {"output": output, "errors": errors}
     
     if plot_data:
-        response["plot"] = plot_data  # Add the base64-encoded plot to the response
-    
-    return jsonify(response)  # ✅ Move `return` to the correct place
-
+        response["plot"] = plot_data
+        
+    return jsonify(response)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
