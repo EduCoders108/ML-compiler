@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  userType: "student" | "teacher" | "admin";
+  role: "student" | "teacher" | "admin";
   profile?: {
     department?: string;
     institution?: string;

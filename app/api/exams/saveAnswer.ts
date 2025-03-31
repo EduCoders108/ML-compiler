@@ -1,4 +1,4 @@
-// pages/api/exam/submit.ts
+// pages/api/exam/saveAnswer.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import connectDB from "@/database/mongoose";
 import ExamAttempt from "@/database/models/examattempt.model";
@@ -16,7 +16,7 @@ export default async function handler(
   const session = await getServerSession(req, res, authOptions);
   if (!session?.user) return res.status(401).json({ message: "Unauthorized" });
 
-  const { examId } = req.body;
+  const { examId, questionId, answer } = req.body;
 
   const attempt = await ExamAttempt.findOne({
     examId,
@@ -26,9 +26,13 @@ export default async function handler(
   if (!attempt)
     return res.status(404).json({ message: "Exam attempt not found" });
 
-  attempt.status = "submitted";
-  attempt.endTime = new Date();
-  await attempt.save();
+  const answerIndex = attempt.answers.findIndex((a: any) =>
+    a.questionId.equals(questionId)
+  );
 
-  res.json({ message: "Exam submitted successfully" });
+  if (answerIndex !== -1) attempt.answers[answerIndex].answer = answer;
+  else attempt.answers.push({ questionId, answer });
+
+  await attempt.save();
+  res.json({ message: "Answer saved" });
 }

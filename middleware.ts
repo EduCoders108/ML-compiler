@@ -1,153 +1,97 @@
-// middleware.js
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-// Paths that don't require authentication
+// ✅ Public Routes (No Authentication Required)
 const publicPaths = [
   "/",
   "/sign-in",
   "/sign-up",
   "/Editor",
   "/datasets",
-  "/register",
-  "/api/auth",
-  "/ExamPortal", // Ensure ExamPortal is fully public
-  "/ExamPortal/examinee",
-  "/ExamPortal/examinee/dashboard",
-  "/ExamPortal/examinee/take-exam",
-  "/ExamPortal/examinee/view-results",
-  "/ExamPortal/examiner",
-  "/ExamPortal/examiner/dashboard",
-  "/ExamPortal/examiner/create-exam",
-  "/ExamPortal/examiner/view-results",
+  "/api/users/register",
+  "/api/users/login",
+  "/ExamPortal",
 ];
 
-// Different role-based permissions
+// ✅ Role-Based Access Control
 const rolePermissions = {
   student: ["/ExamPortal/student"],
-  examiner: ["/ExamPortal/examiner"],
-  admin: ["/ExamPortal/admin", "/ExamPortal/examiner"], // Admin has access to examiner paths too
+  teacher: ["/ExamPortal/teacher"],
+  admin: ["/ExamPortal/student", "/ExamPortal/teacher"],
 };
 
-// Check if a path should be public
-const isPublicPath = (path) => {
+// ✅ Function to check if path is public
+const isPublicPath = (path: string) => {
   return publicPaths.some(
-    (publicPath) => path === publicPath || path.startsWith(`${publicPath}/`)
+    (publicPath) =>
+      path.toLowerCase() === publicPath.toLowerCase() ||
+      path.toLowerCase().startsWith(`${publicPath.toLowerCase()}/`)
   );
 };
 
-// Check if user has permission to access path based on their role
-const hasPermission = (path, role) => {
-  if (!role) return false;
-
-  // Check if the user has permission for this path
-  const allowedPaths = rolePermissions[role] || [];
-  return allowedPaths.some(
+// ✅ Function to check role-based access
+const hasPermission = (path: string, role?: string) => {
+  if (!role || !(role in rolePermissions)) return false;
+  return rolePermissions[role as keyof typeof rolePermissions].some(
     (allowedPath) => path === allowedPath || path.startsWith(`${allowedPath}/`)
   );
 };
 
-// Rate limiting middleware function (simplified)
-const rateLimit = (req) => {
-  // In a real implementation, this would check a database or cache
-  // to enforce rate limits on API routes
-
-  // Check if it's an API route
-  if (req.nextUrl.pathname.startsWith("/api/")) {
-    // For demonstration, we're not implementing actual rate limiting logic
-    // But you would check request counts against limits here
-    console.log("Rate limiting check for API route");
-  }
-
-  return false; // Return true if rate limit exceeded
-};
-
-// Log request information
-const logRequest = (req, user) => {
+// ✅ Log request information
+const logRequest = (req: Request, user: any) => {
   console.log(
-    `[${new Date().toISOString()}] ${req.method} ${req.nextUrl.pathname} - User: ${user?.email || "Unauthenticated"}`
+    `[${new Date().toISOString()}] ${req.method} ${req.url} - User: ${user?.email || "Unauthenticated"}`
   );
 };
 
-// Main middleware function
-export async function middleware(req) {
-  const path = req.nextUrl.pathname;
+// ✅ Main Middleware Function
+export async function middleware(req: NextRequest) {
+  const path = new URL(req.url).pathname;
 
-  // Skip middleware for next.js internal routes and static files
-  if (
-    path.includes("/_next") ||
-    path.includes("/favicon.ico") ||
-    path.endsWith(".svg") ||
-    path.endsWith(".png") ||
-    path.endsWith(".jpg") ||
-    path.endsWith(".css") ||
-    path.endsWith(".js")
-  ) {
+  // ⏩ Skip Middleware for Next.js Internal Routes and Static Assets
+  if (path.startsWith("/_next") || /\.(svg|png|jpg|css|js|ico)$/.test(path)) {
     return NextResponse.next();
   }
 
-  // Check for rate limiting on API routes
-  if (rateLimit(req)) {
-    return new NextResponse(
-      JSON.stringify({ error: "Too many requests, please try again later" }),
-      { status: 429, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  // Allow access to public paths without authentication
+  // ✅ Allow Public Routes
   if (isPublicPath(path)) {
     return NextResponse.next();
   }
 
-  // Get the token and user session
+  // 🔐 Get User Session Token
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  const user = token?.user;
+  const role = token?.role;
 
-  // Log the request
-  logRequest(req, user);
+  // 📝 Log Requests
+  logRequest(req, token);
 
-  // If no token/session exists, redirect to login
-  if (!user) {
+  // 🔄 Redirect if Not Authenticated
+  if (!token) {
     const url = new URL("/sign-in", req.url);
-    url.searchParams.set("callbackUrl", encodeURI(req.url));
+    url.searchParams.set("callbackUrl", encodeURIComponent(req.url));
     return NextResponse.redirect(url);
   }
 
-  // Check role-based permissions
-  if (!hasPermission(path, user.role)) {
-    // Redirect to appropriate dashboard based on role
-    let redirectPath;
+  // 🚫 Restrict Access Based on Role
+  if (!hasPermission(path, role)) {
+    const redirectPath =
+      role === "admin" && !path.startsWith("/ExamPortal/admin")
+        ? "/ExamPortal/admin/dashboard"
+        : role === "teacher" && !path.startsWith("/ExamPortal/teacher")
+          ? "/ExamPortal/teacher"
+          : role === "student" && !path.startsWith("/ExamPortal/student")
+            ? "/ExamPortal/student"
+            : null;
 
-    switch (user.role) {
-      case "admin":
-        redirectPath = "/ExamPortal/admin/dashboard";
-        break;
-      case "examiner":
-        redirectPath = "/ExamPortal/examiner/dashboard";
-        break;
-      case "student":
-        redirectPath = "/ExamPortal/student/dashboard";
-        break;
-      default:
-        redirectPath = "/";
+    if (redirectPath) {
+      return NextResponse.redirect(new URL(redirectPath, req.url));
     }
-
-    return NextResponse.redirect(new URL(redirectPath, req.url));
   }
 
-  // If user has permission, proceed with the request
   return NextResponse.next();
 }
 
-// Configure which routes this middleware applies to
+// ✅ Apply Middleware to All Routes Except Static Files & Auth API
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/auth).*)"],
 };
