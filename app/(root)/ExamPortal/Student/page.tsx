@@ -1,45 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import useSWR from "swr";
+import { useRouter } from "next/navigation";
 
-// Simulated API-like data structure for exams created by teachers
-const mockTeacherCreatedExams = [
-  {
-    id: "1",
-    subject: "Neural Networks Fundamentals",
-    teacher: "Dr. Anna Rodriguez",
-    date: "2024-07-15",
-    duration: "2 hours",
-    totalMarks: 100,
-    description:
-      "Comprehensive exam covering neural network architectures and learning algorithms",
-    status: "Upcoming",
-  },
-  {
-    id: "2",
-    subject: "Advanced Machine Learning Techniques",
-    teacher: "Prof. Michael Chen",
-    date: "2024-08-10",
-    duration: "3 hours",
-    totalMarks: 150,
-    description:
-      "In-depth assessment of advanced ML algorithms and their applications",
-    status: "Upcoming",
-  },
-  {
-    id: "3",
-    subject: "Deep Learning Practical",
-    teacher: "Dr. Sarah Kim",
-    date: "2024-09-05",
-    duration: "2.5 hours",
-    totalMarks: 120,
-    description:
-      "Practical implementation and theoretical understanding of deep learning models",
-    status: "Upcoming",
-  },
-];
+// Fetcher function for SWR
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const MLStudentDashboard: React.FC = () => {
-  const [exams, setExams] = useState(mockTeacherCreatedExams);
+  const router = useRouter();
+  const { data: exams, error } = useSWR("/api/exams", fetcher);
+
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   // Theme toggle functionality
@@ -63,6 +33,9 @@ const MLStudentDashboard: React.FC = () => {
     localStorage.setItem("theme", newTheme);
     document.documentElement.classList.toggle("dark");
   };
+
+  if (error) return <p className="text-red-500">Failed to load exams.</p>;
+  if (!exams) return <p className="text-gray-500">Loading exams...</p>;
 
   return (
     <div className="container mx-auto min-h-screen space-y-6 bg-white p-6 text-gray-900 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100">
@@ -105,7 +78,7 @@ const MLStudentDashboard: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {exams.map((exam) => (
+            {exams.map((exam: any) => (
               <tr
                 key={exam.id}
                 className="border-b hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
@@ -128,11 +101,9 @@ const MLStudentDashboard: React.FC = () => {
                 <td className="p-3">
                   <button
                     className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500"
-                    onClick={() => {
-                      /* Future: Open exam details modal */
-                    }}
+                    onClick={() => router.push(`/exam/${exam.id}`)}
                   >
-                    View Details
+                    Attempt Exam
                   </button>
                 </td>
               </tr>
@@ -149,7 +120,7 @@ const MLStudentDashboard: React.FC = () => {
             </h2>
           </div>
           <div className="space-y-4 p-6">
-            {exams.map((exam) => (
+            {exams.map((exam: any) => (
               <div
                 key={exam.id}
                 className="flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-700"
@@ -181,7 +152,7 @@ const MLStudentDashboard: React.FC = () => {
               Total Upcoming Exams: {exams.length}
             </p>
             <div className="mt-4 space-y-2">
-              {exams.map((exam) => (
+              {exams.map((exam: any) => (
                 <div
                   key={exam.id}
                   className="flex items-center justify-between rounded bg-gray-100 p-2 dark:bg-gray-700"

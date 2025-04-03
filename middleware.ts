@@ -11,13 +11,16 @@ const publicPaths = [
   "/api/users/register",
   "/api/users/login",
   "/ExamPortal",
+  "/profile",
+  "/api/users/profile",
+  "/profileedit",
 ];
 
 // ✅ Role-Based Access Control
 const rolePermissions = {
-  student: ["/ExamPortal/student"],
-  teacher: ["/ExamPortal/teacher"],
-  admin: ["/ExamPortal/student", "/ExamPortal/teacher"],
+  student: ["/ExamPortal/Student"],
+  teacher: ["/ExamPortal/Teacher"],
+  admin: ["/ExamPortal/Student", "/ExamPortal/Teacher"],
 };
 
 // ✅ Function to check if path is public
@@ -77,10 +80,10 @@ export async function middleware(req: NextRequest) {
     const redirectPath =
       role === "admin" && !path.startsWith("/ExamPortal/admin")
         ? "/ExamPortal/admin/dashboard"
-        : role === "teacher" && !path.startsWith("/ExamPortal/teacher")
-          ? "/ExamPortal/teacher"
-          : role === "student" && !path.startsWith("/ExamPortal/student")
-            ? "/ExamPortal/student"
+        : role === "teacher" && !path.startsWith("/ExamPortal/Teacher")
+          ? "/ExamPortal/Teacher"
+          : role === "student" && !path.startsWith("/ExamPortal/Student")
+            ? "/ExamPortal/Student"
             : null;
 
     if (redirectPath) {

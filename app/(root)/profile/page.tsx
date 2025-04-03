@@ -16,85 +16,161 @@ import {
   Edit,
   ChevronRight,
   BarChart2,
+  Loader2,
 } from "lucide-react";
+import Link from "next/link";
+import useSWR from "swr";
+
+// Fetch function for SWR
+const fetcher = (url) =>
+  fetch(url).then((res) => {
+    if (!res.ok) {
+      throw new Error(`Error: ${res.status}`);
+    }
+    return res.json();
+  });
+
+// Helper function to format date
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+};
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Mock user data - would come from your backend in a real app
-  const userData = {
-    name: "Rit Narayan Mallick",
-    username: "alpha82",
-    role: "ML Engineer",
-    location: "Jabalpur",
-    email: "123@example.com",
-    joinDate: "January 2023",
-    bio: "Machine learning engineer specializing in NLP and computer vision. 5+ years experience building and deploying ML models at scale.",
-    skills: [
-      { name: "PyTorch", level: 95 },
-      { name: "TensorFlow", level: 90 },
-      { name: "Python", level: 98 },
-      { name: "Computer Vision", level: 85 },
-      { name: "NLP", level: 92 },
-    ],
-    projects: [
-      {
-        id: 1,
-        name: "SpeechSynth",
-        description: "A neural text-to-speech model with emotion control",
-        stars: 342,
-        forks: 86,
-      },
-      {
-        id: 2,
-        name: "ImageSegmenter",
-        description: "Real-time semantic segmentation for autonomous vehicles",
-        stars: 215,
-        forks: 47,
-      },
-      {
-        id: 3,
-        name: "SentimentAnalyzer",
-        description: "Multilingual sentiment analysis model for social media",
-        stars: 178,
-        forks: 32,
-      },
-    ],
-    stats: {
-      models: 24,
-      deployments: 18,
-      collaborations: 36,
-    },
-    achievements: [
-      "Best Paper Award at ML Conference 2023",
-      "Kaggle Competition Top 1%",
-      "Open Source Contributor of the Month",
-    ],
-    activity: [
-      {
-        type: "model",
-        event: "Deployed CV-Detection-v4 model",
-        time: "2 days ago",
-      },
-      {
-        type: "project",
-        event: "Created new project ImageSegmenter",
-        time: "1 week ago",
-      },
-      {
-        type: "collaboration",
-        event: "Joined TextGen research team",
-        time: "2 weeks ago",
-      },
-      {
-        type: "model",
-        event: "Updated NLP-Transformer-v2",
-        time: "3 weeks ago",
-      },
-    ],
-  };
+  // Use SWR for data fetching with automatic revalidation
+  const {
+    data: apiResponse,
+    error,
+    isLoading,
+  } = useSWR("/api/users/profile", fetcher, {
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+    refreshInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Extract the actual user data from the nested response
+  const data = apiResponse?.data || null;
+
+  // Process and prepare user data
+  const userData = data
+    ? {
+        name: data.name,
+        username: data.username || data.name.split(" ")[0].toLowerCase(), // Fallback if username is empty
+        role: data.role,
+        location: data.location,
+        email: data.email,
+        joinDate: formatDate(data.createdAt),
+        bio: data.bio || "No bio available",
+        skills:
+          data.skills && data.skills.length > 0
+            ? data.skills
+            : [
+                { name: "PyTorch", level: 95 },
+                { name: "TensorFlow", level: 90 },
+                { name: "Python", level: 98 },
+                { name: "Computer Vision", level: 85 },
+                { name: "NLP", level: 92 },
+              ],
+        projects:
+          data.projects && data.projects.length > 0
+            ? data.projects
+            : [
+                {
+                  id: 1,
+                  name: "SpeechSynth",
+                  description:
+                    "A neural text-to-speech model with emotion control",
+                  stars: 342,
+                  forks: 86,
+                },
+                {
+                  id: 2,
+                  name: "ImageSegmenter",
+                  description:
+                    "Real-time semantic segmentation for autonomous vehicles",
+                  stars: 215,
+                  forks: 47,
+                },
+                {
+                  id: 3,
+                  name: "SentimentAnalyzer",
+                  description:
+                    "Multilingual sentiment analysis model for social media",
+                  stars: 178,
+                  forks: 32,
+                },
+              ],
+        stats: data.stats || {
+          models: 24,
+          deployments: 18,
+          collaborations: 36,
+        },
+        achievements:
+          data.achievements && data.achievements.length > 0
+            ? data.achievements
+            : [
+                "Best Paper Award at ML Conference 2023",
+                "Kaggle Competition Top 1%",
+                "Open Source Contributor of the Month",
+              ],
+        activity:
+          data.activity && data.activity.length > 0
+            ? data.activity
+            : [
+                {
+                  type: "model",
+                  event: "Deployed CV-Detection-v4 model",
+                  time: "2 days ago",
+                },
+                {
+                  type: "project",
+                  event: "Created new project ImageSegmenter",
+                  time: "1 week ago",
+                },
+                {
+                  type: "collaboration",
+                  event: "Joined TextGen research team",
+                  time: "2 weeks ago",
+                },
+                {
+                  type: "model",
+                  event: "Updated NLP-Transformer-v2",
+                  time: "3 weeks ago",
+                },
+              ],
+        profileImage: data.profileImage || "/profile.jpg",
+      }
+    : null;
 
   const renderTabContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex h-64 items-center justify-center">
+          <Loader2 className="size-8 animate-spin text-indigo-600" />
+          <span className="ml-2">Loading profile data...</span>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex h-64 items-center justify-center text-red-500">
+          <p>Failed to load profile data. Please try again later.</p>
+        </div>
+      );
+    }
+
+    if (!userData) {
+      return (
+        <div className="flex h-64 items-center justify-center">
+          <p>No profile data available</p>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case "overview":
         return (
@@ -242,6 +318,17 @@ export default function ProfilePage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="container mx-auto flex h-screen items-center justify-center py-8">
+        <div className="text-center">
+          <Loader2 className="mx-auto size-12 animate-spin text-indigo-600" />
+          <p className="mt-4 text-lg text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8">
       {/* Profile Header */}
@@ -250,7 +337,7 @@ export default function ProfilePage() {
         <div className="relative bg-white p-6 dark:bg-gray-900">
           <div className="absolute -top-20 left-6 rounded-xl border-4 border-white bg-white p-1 shadow-lg dark:border-gray-800 dark:bg-gray-800">
             <Image
-              src="/profile.jpg"
+              src={userData?.profileImage || "/profile.jpg"}
               alt="Profile Picture"
               width={100}
               height={100}
@@ -261,32 +348,35 @@ export default function ProfilePage() {
           <div className="ml-32 flex flex-col justify-between md:ml-40 md:flex-row">
             <div>
               <h1 className="text-2xl font-bold md:text-3xl">
-                {userData.name}
+                {userData?.name}
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                @{userData.username}
+                @{userData?.username}
               </p>
               <div className="mt-2 flex flex-wrap gap-4">
                 <div className="flex items-center gap-1 text-sm">
                   <Briefcase className="size-4 text-gray-500" />
-                  <span>{userData.role}</span>
+                  <span>{userData?.role}</span>
                 </div>
                 <div className="flex items-center gap-1 text-sm">
                   <MapPin className="size-4 text-gray-500" />
-                  <span>{userData.location}</span>
+                  <span>{userData?.location}</span>
                 </div>
                 <div className="flex items-center gap-1 text-sm">
                   <Calendar className="size-4 text-gray-500" />
-                  <span>Joined {userData.joinDate}</span>
+                  <span>Joined {userData?.joinDate}</span>
                 </div>
               </div>
             </div>
 
             <div className="mt-4 flex gap-3 md:mt-0">
-              <button className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
+              <Link
+                href="/profileedit"
+                className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+              >
                 <Edit className="size-4" />
                 <span>Edit Profile</span>
-              </button>
+              </Link>
               <button className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
                 <Share2 className="size-4" />
                 <span>Share</span>
@@ -306,31 +396,31 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3">
                 <Mail className="size-5 text-gray-500" />
                 <span className="text-gray-600 dark:text-gray-300">
-                  {userData.email}
+                  {userData?.email}
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <User className="size-5 text-gray-500" />
                 <span className="text-gray-600 dark:text-gray-300">
-                  @{userData.username}
+                  @{userData?.username}
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="size-5 text-gray-500" />
                 <span className="text-gray-600 dark:text-gray-300">
-                  {userData.location}
+                  {userData?.location}
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <Calendar className="size-5 text-gray-500" />
                 <span className="text-gray-600 dark:text-gray-300">
-                  Joined {userData.joinDate}
+                  Joined {userData?.joinDate}
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <Book className="size-5 text-gray-500" />
                 <span className="text-gray-600 dark:text-gray-300">
-                  {userData.role}
+                  {userData?.role}
                 </span>
               </div>
             </div>

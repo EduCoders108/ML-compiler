@@ -28,7 +28,12 @@ export const authOptions: NextAuthOptions = {
         );
         if (!isValidPassword) throw new Error("Invalid credentials");
 
-        return { id: user._id.toString(), email: user.email, role: user.role };
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          role: user.role,
+          name: user.name, // Optional: Adding name
+        };
       },
     }),
   ],
@@ -37,6 +42,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.email = user.email;
       }
       return token;
     },
@@ -44,6 +50,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.email = token.email;
       }
       return session;
     },

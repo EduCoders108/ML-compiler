@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import useSWR from "swr";
+import dynamic from "next/dynamic";
+
+// Dynamically import Monaco Editor for better performance
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+});
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -19,24 +25,35 @@ export default function ExamPage() {
 
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(3600); // Example: 1-hour timer
 
   useEffect(() => {
     if (attempt?.answers) {
       const savedAnswers: Record<string, string> = {};
       attempt.answers.forEach(
-        (a: any) => (savedAnswers[a.questionId] = a.answer)
+        (a: any) => (savedAnswers[a.questionId] = a.code || "")
       );
       setAnswers(savedAnswers);
     }
   }, [attempt]);
 
-  const handleAnswerChange = async (questionId: string, answer: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+  // Timer functionality
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      handleSubmit();
+      return;
+    }
+    const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const handleAnswerChange = async (questionId: string, code: string) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: code }));
 
     await fetch("/api/exam/saveAnswer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ examId, questionId, answer }),
+      body: JSON.stringify({ examId, questionId, code }),
     });
   };
 
@@ -55,31 +72,33 @@ export default function ExamPage() {
   const currentQuestion = exam.questions[currentQuestionIndex];
 
   return (
-    <div className="mx-auto max-w-2xl p-4">
-      <h1 className="text-xl font-bold">{exam.title}</h1>
+    <div className="mx-auto max-w-3xl p-4">
+      <h1 className="text-2xl font-bold">{exam.title}</h1>
+
+      {/* Timer */}
+      <div className="mt-2 font-semibold text-red-500">
+        Time Left: {Math.floor(timeLeft / 60)}:{timeLeft % 60 < 10 ? "0" : ""}
+        {timeLeft % 60}
+      </div>
 
       <div className="mt-4">
         <p className="font-semibold">{currentQuestion?.text}</p>
 
-        <div className="mt-2 flex flex-col space-y-2">
-          {currentQuestion?.options.map((option: string, idx: number) => (
-            <label
-              key={idx}
-              className="flex cursor-pointer items-center space-x-2"
-            >
-              <input
-                type="radio"
-                name={`question-${currentQuestion._id}`}
-                value={option}
-                checked={answers[currentQuestion._id] === option}
-                onChange={() => handleAnswerChange(currentQuestion._id, option)}
-              />
-              <span>{option}</span>
-            </label>
-          ))}
+        {/* Code Editor */}
+        <div className="mt-4 rounded-md border p-2">
+          <MonacoEditor
+            height="300px"
+            defaultLanguage="javascript"
+            theme="vs-dark"
+            value={answers[currentQuestion._id] || ""}
+            onChange={(value) =>
+              handleAnswerChange(currentQuestion._id, value || "")
+            }
+          />
         </div>
       </div>
 
+      {/* Navigation Buttons */}
       <div className="mt-4 flex justify-between">
         <button
           disabled={currentQuestionIndex === 0}

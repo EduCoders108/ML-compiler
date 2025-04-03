@@ -2,7 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 
 interface Answer {
   questionId: mongoose.Types.ObjectId;
-  answer: string;
+  code: string; // Changed 'answer' to 'code' for clarity
+  lastUpdated: Date; // Track last modification time
 }
 
 export interface IExamAttempt extends Document {
@@ -31,7 +32,8 @@ const ExamAttemptSchema = new Schema<IExamAttempt>({
         ref: "Question",
         required: true,
       },
-      answer: { type: String, required: true },
+      code: { type: String, required: true },
+      lastUpdated: { type: Date, default: Date.now },
     },
   ],
 });

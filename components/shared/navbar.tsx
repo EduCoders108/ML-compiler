@@ -2,6 +2,7 @@
 
 import ThemeToggle from "../Theme/ThemeToggle";
 import { Menu } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function Navbar({
@@ -9,6 +10,7 @@ export default function Navbar({
 }: {
   toggleSidebar: () => void;
 }) {
+  const { data: session } = useSession();
   const router = useRouter();
 
   return (
@@ -23,7 +25,7 @@ export default function Navbar({
         ML Companion
       </h1>
 
-      {/* Right Section: Theme Toggle & Exam Portal Button */}
+      {/* Right Section: Theme Toggle, Exam Portal, Auth Button */}
       <div className="flex items-center gap-4">
         <ThemeToggle />
         <button
@@ -32,6 +34,22 @@ export default function Navbar({
         >
           Exam Portal
         </button>
+
+        {session ? (
+          <button
+            onClick={() => signOut()}
+            className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+          >
+            Sign Out
+          </button>
+        ) : (
+          <button
+            onClick={() => router.push("/sign-in")}
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
+            Sign In
+          </button>
+        )}
       </div>
     </nav>
   );
