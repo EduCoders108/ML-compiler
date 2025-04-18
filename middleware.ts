@@ -14,11 +14,16 @@ const publicPaths = [
   "/profile",
   "/api/users/profile",
   "/profileedit",
+  "/api/exams/create",
+  "/api/exams/get",
+  "/api/exams/start",
+  "/exam",
+  "/api/exams",
 ];
 
 // ✅ Role-Based Access Control
 const rolePermissions = {
-  student: ["/ExamPortal/Student"],
+  student: ["/ExamPortal/Student", "/exam", "/DemoPage"],
   teacher: ["/ExamPortal/Teacher"],
   admin: ["/ExamPortal/Student", "/ExamPortal/Teacher"],
 };

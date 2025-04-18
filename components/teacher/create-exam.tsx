@@ -1,336 +1,44 @@
-// "use client";
-// import React, { useState } from "react";
-// import { v4 as uuidv4 } from "uuid"; // You'll need to install this package
-
-// type MLCodingQuestion = {
-//   id: string;
-//   topic: string;
-//   difficulty: "Beginner" | "Intermediate" | "Advanced";
-//   questionText: string;
-//   expectedOutputType: string;
-//   codeTemplate?: string;
-// };
-
-// type ExamFormData = {
-//   semester: string;
-//   questions: MLCodingQuestion[];
-// };
-
-// interface MLExamCreatorProps {
-//   onExamCreated: (examData: ExamFormData) => void;
-// }
-
-// const MLExamCreator: React.FC<MLExamCreatorProps> = ({ onExamCreated }) => {
-//   const [formData, setFormData] = useState<ExamFormData>({
-//     semester: "",
-//     questions: [
-//       {
-//         id: uuidv4(),
-//         topic: "",
-//         difficulty: "Intermediate",
-//         questionText: "",
-//         expectedOutputType: "",
-//         codeTemplate: "",
-//       },
-//     ],
-//   });
-
-//   const [currentStep, setCurrentStep] = useState<number>(0);
-//   const totalSteps = 2; // Step 1: Basic info, Step 2: Questions
-
-//   const handleInputChange = (
-//     e: React.ChangeEvent<
-//       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-//     >
-//   ) => {
-//     const { name, value } = e.target;
-//     setFormData({ ...formData, [name]: value });
-//   };
-
-//   const handleQuestionChange = (
-//     questionId: string,
-//     field: keyof MLCodingQuestion,
-//     value: string
-//   ) => {
-//     setFormData({
-//       ...formData,
-//       questions: formData.questions.map((q) =>
-//         q.id === questionId ? { ...q, [field]: value } : q
-//       ),
-//     });
-//   };
-
-//   const addQuestion = () => {
-//     setFormData({
-//       ...formData,
-//       questions: [
-//         ...formData.questions,
-//         {
-//           id: uuidv4(),
-//           topic: "",
-//           difficulty: "Intermediate",
-//           questionText: "",
-//           expectedOutputType: "",
-//           codeTemplate: "",
-//         },
-//       ],
-//     });
-//   };
-
-//   const removeQuestion = (questionId: string) => {
-//     if (formData.questions.length <= 1) {
-//       return; // Prevent removing all questions
-//     }
-//     setFormData({
-//       ...formData,
-//       questions: formData.questions.filter((q) => q.id !== questionId),
-//     });
-//   };
-
-//   const nextStep = () => {
-//     if (currentStep < totalSteps - 1) {
-//       setCurrentStep(currentStep + 1);
-//     }
-//   };
-
-//   const prevStep = () => {
-//     if (currentStep > 0) {
-//       setCurrentStep(currentStep - 1);
-//     }
-//   };
-
-//   const handleSubmit = (e: React.FormEvent) => {
-//     e.preventDefault();
-//     onExamCreated(formData);
-//   };
-
-//   const renderStep = () => {
-//     switch (currentStep) {
-//       case 0:
-//         return (
-//           <div className="space-y-4">
-//             <h3 className="text-lg font-medium">Basic Exam Information</h3>
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-//                 Semester
-//               </label>
-//               <input
-//                 type="text"
-//                 name="semester"
-//                 value={formData.semester}
-//                 onChange={handleInputChange}
-//                 placeholder="e.g. Fall 2024"
-//                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
-//                 required
-//               />
-//             </div>
-//           </div>
-//         );
-//       case 1:
-//         return (
-//           <div className="space-y-6">
-//             <h3 className="text-lg font-medium">ML Coding Questions</h3>
-//             {formData.questions.map((question, index) => (
-//               <div
-//                 key={question.id}
-//                 className="rounded-lg border border-gray-300 bg-white p-4 shadow-sm dark:border-gray-600 dark:bg-gray-800"
-//               >
-//                 <div className="mb-2 flex items-center justify-between">
-//                   <h4 className="text-md font-medium">Question {index + 1}</h4>
-//                   <button
-//                     type="button"
-//                     onClick={() => removeQuestion(question.id)}
-//                     className="rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600"
-//                     disabled={formData.questions.length <= 1}
-//                   >
-//                     Remove
-//                   </button>
-//                 </div>
-
-//                 <div className="grid grid-cols-2 gap-4">
-//                   <div>
-//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-//                       Topic
-//                     </label>
-//                     <input
-//                       type="text"
-//                       value={question.topic}
-//                       onChange={(e) =>
-//                         handleQuestionChange(
-//                           question.id,
-//                           "topic",
-//                           e.target.value
-//                         )
-//                       }
-//                       placeholder="e.g. Neural Networks"
-//                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
-//                       required
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-//                       Difficulty
-//                     </label>
-//                     <select
-//                       value={question.difficulty}
-//                       onChange={(e) =>
-//                         handleQuestionChange(
-//                           question.id,
-//                           "difficulty",
-//                           e.target.value as
-//                             | "Beginner"
-//                             | "Intermediate"
-//                             | "Advanced"
-//                         )
-//                       }
-//                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
-//                     >
-//                       <option value="Beginner">Beginner</option>
-//                       <option value="Intermediate">Intermediate</option>
-//                       <option value="Advanced">Advanced</option>
-//                     </select>
-//                   </div>
-//                 </div>
-
-//                 <div className="mt-4">
-//                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-//                     Question Text
-//                   </label>
-//                   <textarea
-//                     value={question.questionText}
-//                     onChange={(e) =>
-//                       handleQuestionChange(
-//                         question.id,
-//                         "questionText",
-//                         e.target.value
-//                       )
-//                     }
-//                     rows={4}
-//                     placeholder="Enter the question text here..."
-//                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
-//                     required
-//                   />
-//                 </div>
-
-//                 <div className="mt-4">
-//                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-//                     Expected Output Type
-//                   </label>
-//                   <input
-//                     type="text"
-//                     value={question.expectedOutputType}
-//                     onChange={(e) =>
-//                       handleQuestionChange(
-//                         question.id,
-//                         "expectedOutputType",
-//                         e.target.value
-//                       )
-//                     }
-//                     placeholder="e.g. NumPy array, Pandas DataFrame, etc."
-//                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
-//                     required
-//                   />
-//                 </div>
-
-//                 <div className="mt-4">
-//                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-//                     Code Template (Optional)
-//                   </label>
-//                   <textarea
-//                     value={question.codeTemplate || ""}
-//                     onChange={(e) =>
-//                       handleQuestionChange(
-//                         question.id,
-//                         "codeTemplate",
-//                         e.target.value
-//                       )
-//                     }
-//                     rows={6}
-//                     placeholder="# Provide a code template for students to fill in"
-//                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 font-mono shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
-//                   />
-//                 </div>
-//               </div>
-//             ))}
-
-//             <button
-//               type="button"
-//               onClick={addQuestion}
-//               className="flex w-full items-center justify-center rounded-md border border-dashed border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-//             >
-//               + Add Another Question
-//             </button>
-//           </div>
-//         );
-//       default:
-//         return null;
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit} className="space-y-6">
-//       {renderStep()}
-
-//       <div className="mt-6 flex justify-between space-x-4">
-//         {currentStep > 0 && (
-//           <button
-//             type="button"
-//             onClick={prevStep}
-//             className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-//           >
-//             Previous
-//           </button>
-//         )}
-
-//         {currentStep < totalSteps - 1 ? (
-//           <button
-//             type="button"
-//             onClick={nextStep}
-//             className="ml-auto rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
-//           >
-//             Next
-//           </button>
-//         ) : (
-//           <button
-//             type="submit"
-//             className="ml-auto rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
-//           >
-//             Create Exam
-//           </button>
-//         )}
-//       </div>
-//     </form>
-//   );
-// };
-
-// export default MLExamCreator;
 "use client";
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useSession } from "next-auth/react";
 
 type MLCodingQuestion = {
   id: string;
-  topic: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
   questionText: string;
   expectedOutputType: string;
   codeTemplate?: string;
 };
 
 type ExamFormData = {
+  title: string;
   semester: string;
+  topic: string;
+  date: string;
+  duration?: number;
+  totalMarks?: number;
+  status: "Draft" | "Active" | "Scheduled" | "Completed";
   questions: MLCodingQuestion[];
 };
 
-const MLExamCreator: React.FC = () => {
+interface MLExamCreatorProps {
+  onExamCreated: () => void;
+}
+
+const MLExamCreator: React.FC<MLExamCreatorProps> = ({ onExamCreated }) => {
+  const { data: session } = useSession();
+
   const [formData, setFormData] = useState<ExamFormData>({
+    title: "",
     semester: "",
+    topic: "",
+    date: "",
+    duration: undefined,
+    totalMarks: undefined,
+    status: "Draft",
     questions: [
       {
         id: uuidv4(),
-        topic: "",
-        difficulty: "Intermediate",
         questionText: "",
         expectedOutputType: "",
         codeTemplate: "",
@@ -338,8 +46,16 @@ const MLExamCreator: React.FC = () => {
     ],
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData({
+      ...formData,
+      [name]:
+        name === "duration" || name === "totalMarks" ? Number(value) : value,
+    });
   };
 
   const handleQuestionChange = (
@@ -362,8 +78,6 @@ const MLExamCreator: React.FC = () => {
         ...formData.questions,
         {
           id: uuidv4(),
-          topic: "",
-          difficulty: "Intermediate",
           questionText: "",
           expectedOutputType: "",
           codeTemplate: "",
@@ -372,99 +86,262 @@ const MLExamCreator: React.FC = () => {
     });
   };
 
+  const removeQuestion = (questionId: string) => {
+    setFormData({
+      ...formData,
+      questions: formData.questions.filter((q) => q.id !== questionId),
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await fetch("/api/exams", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
 
-    if (response.ok) {
+    if (!session?.user?.id) {
+      alert("You must be logged in to create an exam.");
+      return;
+    }
+
+    try {
+      const questionResponses = await Promise.all(
+        formData.questions.map(async (question) => {
+          const res = await fetch("/api/exams/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "question",
+              ...question,
+            }),
+          });
+
+          if (!res.ok) throw new Error("Failed to create question");
+
+          const data = await res.json();
+          return data.questionId;
+        })
+      );
+
+      const examData = {
+        type: "exam",
+        title: formData.title,
+        semester: formData.semester,
+        topic: formData.topic,
+        date: formData.date,
+        duration: formData.duration,
+        totalMarks: formData.totalMarks,
+        status: formData.status,
+        createdBy: session.user.id,
+        questions: questionResponses,
+      };
+
+      const examRes = await fetch("/api/exams/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(examData),
+      });
+
+      if (!examRes.ok) throw new Error("Failed to create exam");
+
       alert("Exam Created Successfully!");
+
       setFormData({
+        title: "",
         semester: "",
+        topic: "",
+        date: "",
+        duration: undefined,
+        totalMarks: undefined,
+        status: "Draft",
         questions: [
           {
             id: uuidv4(),
-            topic: "",
-            difficulty: "Intermediate",
             questionText: "",
             expectedOutputType: "",
             codeTemplate: "",
           },
         ],
       });
-    } else {
-      alert("Failed to create exam.");
+
+      onExamCreated();
+    } catch (error: any) {
+      alert(error.message || "Something went wrong.");
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-md border bg-white p-4 shadow-md dark:bg-gray-800"
+      className="flex flex-col rounded-md border bg-white p-4 shadow-md dark:bg-gray-800"
     >
       <h3 className="text-xl font-semibold">Create ML Exam</h3>
 
-      <div>
+      {/* Basic Exam Fields */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium">Exam Title</label>
+        <input
+          type="text"
+          name="title"
+          value={formData.title}
+          onChange={handleInputChange}
+          className="w-full rounded-md border px-3 py-2"
+          required
+        />
+      </div>
+
+      <div className="mb-4">
         <label className="block text-sm font-medium">Semester</label>
         <input
           type="text"
           name="semester"
           value={formData.semester}
           onChange={handleInputChange}
-          required
           className="w-full rounded-md border px-3 py-2"
+          required
         />
       </div>
 
-      <h3 className="text-lg font-medium">Questions</h3>
-      {formData.questions.map((question, index) => (
-        <div key={question.id} className="rounded-md border p-4">
-          <h4 className="font-medium">Question {index + 1}</h4>
+      <div className="mb-4">
+        <label className="block text-sm font-medium">Topic</label>
+        <input
+          type="text"
+          name="topic"
+          value={formData.topic}
+          onChange={handleInputChange}
+          className="w-full rounded-md border px-3 py-2"
+          required
+        />
+      </div>
 
-          <label className="block text-sm font-medium">Topic</label>
+      <div className="mb-4">
+        <label className="block text-sm font-medium">Date</label>
+        <input
+          type="date"
+          name="date"
+          value={formData.date}
+          onChange={handleInputChange}
+          className="w-full rounded-md border px-3 py-2"
+          required
+        />
+      </div>
+
+      <div className="mb-4 grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium">Duration (mins)</label>
           <input
-            type="text"
-            value={question.topic}
-            onChange={(e) =>
-              handleQuestionChange(question.id, "topic", e.target.value)
-            }
+            type="number"
+            name="duration"
+            value={formData.duration || ""}
+            onChange={handleInputChange}
             className="w-full rounded-md border px-3 py-2"
-            required
           />
-
-          <label className="mt-2 block text-sm font-medium">Difficulty</label>
-          <select
-            value={question.difficulty}
-            onChange={(e) =>
-              handleQuestionChange(
-                question.id,
-                "difficulty",
-                e.target.value as "Beginner" | "Intermediate" | "Advanced"
-              )
-            }
-            className="w-full rounded-md border px-3 py-2"
-          >
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
-          </select>
         </div>
-      ))}
+
+        <div>
+          <label className="block text-sm font-medium">Total Marks</label>
+          <input
+            type="number"
+            name="totalMarks"
+            value={formData.totalMarks || ""}
+            onChange={handleInputChange}
+            className="w-full rounded-md border px-3 py-2"
+          />
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium">Status</label>
+        <select
+          name="status"
+          value={formData.status}
+          onChange={handleInputChange}
+          className="w-full rounded-md border px-3 py-2"
+        >
+          <option value="Draft">Draft</option>
+          <option value="Active">Active</option>
+          <option value="Scheduled">Scheduled</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+
+      {/* Questions */}
+      <h3 className="mb-2 text-lg font-medium">Questions</h3>
+      <div className="mb-4 space-y-4">
+        {formData.questions.map((question, index) => (
+          <div key={question.id} className="rounded-md border p-4">
+            <h4 className="font-medium">Question {index + 1}</h4>
+
+            <label className="mt-2 block text-sm font-medium">
+              Question Text
+            </label>
+            <textarea
+              value={question.questionText}
+              onChange={(e) =>
+                handleQuestionChange(
+                  question.id,
+                  "questionText",
+                  e.target.value
+                )
+              }
+              rows={4}
+              className="w-full rounded-md border px-3 py-2"
+              required
+            />
+
+            <label className="mt-2 block text-sm font-medium">
+              Expected Output Type
+            </label>
+            <input
+              type="text"
+              value={question.expectedOutputType}
+              onChange={(e) =>
+                handleQuestionChange(
+                  question.id,
+                  "expectedOutputType",
+                  e.target.value
+                )
+              }
+              className="w-full rounded-md border px-3 py-2"
+              required
+            />
+
+            <label className="mt-2 block text-sm font-medium">
+              Code Template
+            </label>
+            <textarea
+              value={question.codeTemplate}
+              onChange={(e) =>
+                handleQuestionChange(
+                  question.id,
+                  "codeTemplate",
+                  e.target.value
+                )
+              }
+              rows={3}
+              className="w-full rounded-md border px-3 py-2"
+            />
+
+            <button
+              type="button"
+              onClick={() => removeQuestion(question.id)}
+              className="mt-2 rounded-md bg-red-500 px-3 py-1 text-white hover:bg-red-600"
+              disabled={formData.questions.length === 1}
+            >
+              Remove Question
+            </button>
+          </div>
+        ))}
+      </div>
 
       <button
         type="button"
         onClick={addQuestion}
-        className="mt-2 rounded-md bg-gray-200 p-2"
+        className="mb-4 rounded-md bg-gray-200 p-2 hover:bg-gray-300"
       >
         + Add Question
       </button>
 
       <button
         type="submit"
-        className="mt-4 w-full rounded-md bg-green-600 p-2 text-white"
+        className="w-full rounded-md bg-green-600 p-2 text-white hover:bg-green-700"
       >
         Create Exam
       </button>

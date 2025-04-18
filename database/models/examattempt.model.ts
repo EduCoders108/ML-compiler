@@ -2,8 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 
 interface Answer {
   questionId: mongoose.Types.ObjectId;
-  code: string; // Changed 'answer' to 'code' for clarity
-  lastUpdated: Date; // Track last modification time
+  code: string; // student's answer code
+  lastUpdated: Date;
 }
 
 export interface IExamAttempt extends Document {
@@ -11,7 +11,7 @@ export interface IExamAttempt extends Document {
   studentId: mongoose.Types.ObjectId;
   startTime: Date;
   endTime?: Date;
-  status: "ongoing" | "submitted" | "expired";
+  status: "not_started" | "ongoing" | "submitted" | "expired"; // 🎯 Student-specific attempt status
   answers: Answer[];
 }
 
@@ -22,8 +22,8 @@ const ExamAttemptSchema = new Schema<IExamAttempt>({
   endTime: { type: Date },
   status: {
     type: String,
-    enum: ["ongoing", "submitted", "expired"],
-    default: "ongoing",
+    enum: ["not_started", "ongoing", "submitted", "expired"],
+    default: "not_started", // ✅ Different from exam's status
   },
   answers: [
     {

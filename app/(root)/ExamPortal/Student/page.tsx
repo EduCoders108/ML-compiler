@@ -8,7 +8,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const MLStudentDashboard: React.FC = () => {
   const router = useRouter();
-  const { data: exams, error } = useSWR("/api/exams", fetcher);
+  const { data: exams, error } = useSWR("/api/exams/get", fetcher);
 
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
@@ -87,7 +87,7 @@ const MLStudentDashboard: React.FC = () => {
                   {exam.subject}
                 </td>
                 <td className="p-3 text-gray-900 dark:text-gray-100">
-                  {exam.teacher}
+                  {exam.teacher.name}
                 </td>
                 <td className="p-3 text-gray-900 dark:text-gray-100">
                   {exam.date}
@@ -130,7 +130,7 @@ const MLStudentDashboard: React.FC = () => {
                     {exam.subject}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {exam.teacher}
+                    {exam.teacher.name}
                   </p>
                 </div>
                 <span className="text-sm text-gray-500 dark:text-gray-400">

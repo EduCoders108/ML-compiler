@@ -14,7 +14,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   if (!isMounted) return null; // Prevent SSR mismatch
 
   return (
-    <main className="relative bg-white dark:bg-gray-900">
+    <main className="relative bg-slate-100 dark:bg-gray-900">
       {/* Navbar with Sidebar Toggle */}
       <Navbar toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
 

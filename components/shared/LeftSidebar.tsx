@@ -27,7 +27,7 @@ export default function LeftSidebar({ isOpen }: LeftSidebarProps) {
         isOpen ? "translate-x-0" : "-translate-x-full"
       } md:translate-x-0 ${
         theme === "dark"
-          ? "bg-gradient-to-b from-gray-900 to-black text-white"
+          ? "text-ellipsis bg-gray-950 text-white"
           : "bg-gradient-to-b from-gray-100 to-gray-200 text-black"
       }`}
     >

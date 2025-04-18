@@ -16,11 +16,14 @@ export default s;
 export interface MLExam {
   id: string;
   subject: string;
+  title: string;
   teacher: string;
   date: string;
+  semester: string;
   duration: string;
   totalMarks: number;
   description: string;
+  totalStudents: number;
   status: string;
 }
 
