@@ -24,7 +24,7 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["http://ml-companion.vercel.app"])
 
 # Configure logging
 logging.basicConfig(filename="app.log", level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
