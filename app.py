@@ -24,7 +24,8 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-CORS(app, origins=["http://ml-companion.vercel.app"])
+#CORS(app)
+CORS(app, origins=["http://ml-companion.vercel.app")
 
 # Configure logging
 logging.basicConfig(filename="app.log", level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -248,5 +249,5 @@ def execute_code():
         
     return jsonify(response)
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+#if __name__ == '__main__':
+#    app.run(host="0.0.0.0", port=5000, debug=True)
